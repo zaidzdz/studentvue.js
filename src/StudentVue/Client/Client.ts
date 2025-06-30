@@ -26,6 +26,8 @@ import XMLFactory from '../../utils/XMLFactory/XMLFactory';
 import cache from '../../utils/cache/cache';
 import { optional, asyncPoolAll } from './Client.helpers';
 import he from "he";
+import zod from "zod"
+
 
 /**
  * TO DO; rewrite the studentInfo stuff to primary ChildList with studentInfo as the fallback, 
@@ -339,10 +341,12 @@ export default class Client extends soap.Client {
    * await client.gradebook(7) // Some schools will have ReportingPeriodIndex 7 as "4th Quarter"
    * ```
    */
-  public gradebook(reportingPeriodIndex?: number,orgYearGu?:string): Promise<[Gradebook,any]> {
-    return new Promise((res, rej) => {
-      super
-        .processRequest<GradebookXMLObject&{extraData?:any}>(
+
+
+
+  public gradebook=Object.assign((reportingPeriodIndex?: number,orgYearGu?:string)=>{
+        super
+        .processRequest<String>(
           {
             methodName: 'Gradebook',
             paramStr: {
@@ -351,22 +355,32 @@ export default class Client extends soap.Client {
               ...(orgYearGu != null ? { ConcurrentSchOrgYearGU: orgYearGu } : {})
             },
           },
-          (xml) =>
-            new XMLFactory(xml)
+        )
+        .then((rawXml:String) => {
+          return (rawXml)
+        })
+  },{preparse(xml:string){ 
+         return new XMLFactory(xml)
               .encodeAttribute('MeasureDescription', 'HasDropBox')
               .encodeAttribute('Measure', 'Type')
-              .toString()
-        )
-        .then((xmlObject: GradebookXMLObject | any) => {
-          try{
-            if (xmlObject.RT_ERROR[0]['@_ERROR_MESSAGE'][0].includes("The user name or password is incorrect")||xmlObject.RT_ERROR[0]['@_ERROR_MESSAGE'][0].includes("Invalid user id or password")) {rej(new Error("Invalid/Incorrect Username or Password"));}
-            else{rej(new RequestException(xmlObject))};}
-          catch(e){
-        
-          res([{
-            error: xmlObject.Gradebook[0]['@_ErrorMessage'][0],
-            type: xmlObject.Gradebook[0]['@_Type'][0],
-            reportingPeriod: {
+              .toString()},parse(xml:string,reportingPeriodIndex:number){ 
+          const xmlObject:GradebookXMLObject = super.parseResponse(xml,this.preparse);
+
+    try{
+
+
+          //@ts-ignore
+        if (xmlObject.RT_ERROR[0]['@_ERROR_MESSAGE'][0].includes("The user name or password is incorrect")||xmlObject.RT_ERROR[0]['@_ERROR_MESSAGE'][0].includes("Invalid user id or password")) {return(new Error("Invalid/Incorrect Username or Password"));}
+                //@ts-ignore
+        else{return (new RequestException(xmlObject))};
+            
+    }
+    catch(e){}
+            
+          const response:Gradebook|any={
+          }
+            response.type=xmlObject.Gradebook[0]['@_Type'][0]
+            response.reportingPeriod={
               current: {
                 index:
                   reportingPeriodIndex ??
@@ -387,7 +401,7 @@ export default class Client extends soap.Client {
                 index: Number(period['@_Index'][0]),
               })),
             },
-            courses: xmlObject.Gradebook[0].Courses[0].Course.map((course:any) => ({
+            response.courses= xmlObject.Gradebook[0].Courses[0].Course.map((course:any) => ({
               period: Number(course['@_Period'][0]),
               title: he.decode(course['@_Title'][0]),
               room: course['@_Room'][0],
@@ -483,20 +497,21 @@ export default class Client extends soap.Client {
                                       `Type ${rsrc['@_Type'][0]} does not exist as a type. Add it to type declarations.`
                                     );
                                 }
-                              }) as (FileResource | URLResource)[]) */ 
+                              }) as (FileResource | URLResource)[]) */
                                //Obviously this is an insanely negligent fix. Just saying to complete hell with the resource. But, grade melon doesn't use it. So I don't care.
                            [] : [],
                       })) as Assignment[])
                     : [],
               }))) as Mark[]:[{ name: "none", calculatedScore: { string: "none", raw: NaN }, weightedCategories: [], assignments: [] }] as Mark[],
-            })),
-          } as Gradebook,
-        xmlObject.extraData]
-        );}
-        })
-        .catch(rej);
-    });
-  }
+            }))
+          return response as Gradebook;
+        }
+
+
+  })
+
+
+
 
   /**
    * Get a list of messages of the student

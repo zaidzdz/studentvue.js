@@ -116,11 +116,11 @@ export default class Client {
         },
       });
 
-        fetch(expressUrl+"/fulfillAxios",{
-        'method':'POST',
-        'headers':{'Content-Type':'application/json'},
-        'body':JSON.stringify({'url':this.district,'xml':xml,'encrypted':this.encrypted})
-    })
+      res(xml)
+      /*
+I've decided to intercept the actual fetching and post-processing of requests due to the absolute
+pain it's been to leave it in the library
+
         .then(async(response:any) => {
           const realResponse=await response.json();
           if(!realResponse.status){return reject(new Error(realResponse.message))}
@@ -153,8 +153,32 @@ export default class Client {
           res(obj as T);
         })
         .catch(reject);
+         */
     });
+   
   }
+
+  public parseRequest(xml:string,preparse: (xml: string) => string = (xml) => xml){
+     const parser = new XMLParser({});
+          const result: ParsedRequestResult = parser.parse(xml);
+          const parserTwo = new XMLParser({
+            ignoreAttributes: false,
+            isArray: () => true,
+            processEntities: false,
+            parseAttributeValue: false,
+            parseTagValue: false,
+          });
+
+          const obj: any | ParsedRequestError = parserTwo.parse(
+            preparse(
+              result['soap:Envelope']['soap:Body'].ProcessWebServiceRequestMultiWebResponse.ProcessWebServiceRequestMultiWebResult
+            )
+          );
+
+          return obj
+
+  }
+
 
   private static parseParamStr(input: object): string {
     const builder = new XMLBuilder({

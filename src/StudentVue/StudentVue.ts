@@ -13,6 +13,10 @@ import { Gradebook } from './Client/Client.interfaces';
  * @param {UserCredentials} credentials User credentials of the student
  * @returns {Promise<Client>} Returns the client and the information of the student upon successful login
  */
+
+/*
+||Disabling this function as I continue to externalize this shit (ts pmo)
+
 export function login(districtUrl: string, credentials: UserCredentials,proxyUrl:string="https://studentvuelib.up.railway.app"): Promise<[Client,Gradebook,any]> {
   return new Promise((res, rej) => {
     if (districtUrl.length === 0)
@@ -45,10 +49,14 @@ export function login(districtUrl: string, credentials: UserCredentials,proxyUrl
       if(info.)
 
     })
-      */
+      
     
   });
 }
+
+
+*/
+
 
 /**
  * Find school districts using a zipcode
@@ -80,3 +88,6 @@ export function findDistricts(zipCode: string): Promise<SchoolDistrict[]> {
       .catch(reject);
   });
 }
+
+
+export {Client}

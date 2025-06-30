@@ -5,10 +5,6 @@ import { Staff } from '../Client.interfaces';
  * The student gradebook
  */
 export declare interface Gradebook {
-  /**
-   * Error message, if there is any
-   */
-  error: string;
 
   /**
    * The type of gradebook. It's usually `Traditional` if the student's class uses a letter-grade scale
