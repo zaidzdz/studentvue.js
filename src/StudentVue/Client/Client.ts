@@ -344,8 +344,8 @@ export default class Client extends soap.Client {
 
 
 
-  public gradebook=Object.assign((reportingPeriodIndex?: number,orgYearGu?:string)=>{
-        super
+  public gradebook=Object.assign((reportingPeriodIndex?: number,orgYearGu?:string):String=>{
+        return super
         .processRequest<String>(
           {
             methodName: 'Gradebook',
@@ -356,9 +356,7 @@ export default class Client extends soap.Client {
             },
           },
         )
-        .then((rawXml:String) => {
-          return (rawXml)
-        })
+       
   },{preparse(xml:string){ 
          return new XMLFactory(xml)
               .encodeAttribute('MeasureDescription', 'HasDropBox')

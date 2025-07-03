@@ -3,13 +3,14 @@ export default class Client {
     private __username__;
     private __password__;
     private __district__;
+    private static url;
     private readonly isParent;
-    encrypted: any;
+    encrypted: boolean;
     private get district();
     private get username();
     private get password();
     protected get credentials(): LoginCredentials;
-    constructor(credentials: LoginCredentials);
+    constructor(credentials: LoginCredentials, Purl?: string);
     /**
      * Create a POST request to synergy servers to fetch data
      * @param options Options to provide when making a XML request to the servers
@@ -41,7 +42,8 @@ export default class Client {
   </soap:Envelope>
      * ```
      */
-    protected processRequest<T extends object | undefined>(options: RequestOptions, preparse?: (xml: string) => string): Promise<T>;
+    processRequest<T extends object | undefined>(options: RequestOptions, preparse?: (xml: string) => string): Promise<T>;
+    parseRequest(xml: string, preparse?: (xml: string) => string): any;
     private static parseParamStr;
     static processAnonymousRequest<T extends object | undefined>(url: string, options?: Partial<RequestOptions>, preparse?: (xml: string) => string): Promise<T>;
 }

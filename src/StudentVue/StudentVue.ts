@@ -15,7 +15,7 @@ import { Gradebook } from './Client/Client.interfaces';
  */
 
 /*
-||Disabling this function as I continue to externalize this shit (ts pmo)
+||Disabling this function as I continue to externalize this shit (ts pmo)||
 
 export function login(districtUrl: string, credentials: UserCredentials,proxyUrl:string="https://studentvuelib.up.railway.app"): Promise<[Client,Gradebook,any]> {
   return new Promise((res, rej) => {

@@ -83,7 +83,7 @@ export default class Client {
   public processRequest<T extends object | undefined>(
     options: RequestOptions,
     preparse: (xml: string) => string = (xml) => xml
-  ): Promise<T> {
+  ): T {
     const defaultOptions: RequestOptions = {
       validateErrors: true,
       skipLoginLog: 0,
@@ -93,7 +93,7 @@ export default class Client {
       ...options,
     };
     const expressUrl=Client.url;
-    return new Promise((res, reject) => {
+    return (()=>{
       const builder = new XMLBuilder({
         ignoreAttributes: false,
         arrayNodeName: 'soap:Envelope',
@@ -116,7 +116,7 @@ export default class Client {
         },
       });
 
-      res(xml)
+      return xml
       /*
 I've decided to intercept the actual fetching and post-processing of requests due to the absolute
 pain it's been to leave it in the library
@@ -154,7 +154,7 @@ pain it's been to leave it in the library
         })
         .catch(reject);
          */
-    });
+    })();
    
   }
 
