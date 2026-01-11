@@ -116,11 +116,20 @@ export default class Client {
         },
       });
 
-        fetch(expressUrl+"/fulfillAxios",{
-        'method':'POST',
-        'headers':{'Content-Type':'application/json'},
-        'body':JSON.stringify({'url':this.district,'xml':xml,'encrypted':this.encrypted})
-    })
+        fetch(expressUrl + "/fulfillAxios", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-App-Version': '1.0.0',   // ← ADD THIS
+            },
+            body: JSON.stringify({
+              url: this.district,
+              xml,
+              encrypted: this.encrypted,
+              appVersion: '1.0.0',       // ← AND/OR THIS
+            }),
+          });
+
         .then(async(response:any) => {
           const realResponse=await response.json();
           if(!realResponse.status){return reject(new Error(realResponse.message))}
